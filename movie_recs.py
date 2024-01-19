@@ -16,4 +16,4 @@ collection = db.movies
 items = collection.find().limit(5)
 
 for item in items:
-    print(item)
+    print("item:",item)
