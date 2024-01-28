@@ -25,6 +25,22 @@ def generate_embedding(text: str) -> list[float]:
         raise ValueError(f"Request failed with status code {response.status_code}: {response.text}")
     return response.json()
 
-for doc in collection.find({'plot':{"$exists": True}}).limit(50):
+"""for doc in collection.find({'plot':{"$exists": True}}).limit(50):
     doc['plot_embedding_hf'] = generate_embedding(doc['plot'])
-    collection.replace_one({'_id': doc['_id']}, doc)
+    collection.replace_one({'_id': doc['_id']}, doc)"""
+    
+query = "Imagine characters from outer space at war"
+
+results = collection.aggregate([
+    {
+        "$vectorSearch":{
+            "queryVector": generate_embedding(query),
+            "path":"plot_embedding_hf",
+            "numCandidates":100,
+            "limit":4,
+            "index":"PlotSemanticSearch",
+        }
+    }
+])
+for document in results:
+    print(f'Movie Name:{document["title"]},\nMovie Plot:{document["plot"]}\n')
